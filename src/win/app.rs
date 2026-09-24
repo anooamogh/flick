@@ -22,6 +22,10 @@ const WM_EFFECTS: u32 = WM_APP + 2;
 const TIMER_MENU: usize = 1;
 const TIMER_FRAME: usize = 2;
 const FRAME_MS: u32 = 8;
+const TIMER_EXCLUSION: usize = 3;
+/// Re-check the foreground window this often, in case its title was set after it came to the
+/// front, or the foreground event never fired (fullscreen games).
+const EXCLUSION_CHECK_MS: u32 = 1000;
 
 thread_local! {
     static TRACKER: RefCell<Tracker> = RefCell::new(Tracker::new(DEAD_ZONE_PX));
@@ -72,6 +76,7 @@ pub fn run() -> Result<()> {
         tray::add(control);
         hooks::watch_foreground();
         on_foreground_changed(GetForegroundWindow());
+        SetTimer(Some(control), TIMER_EXCLUSION, EXCLUSION_CHECK_MS, None);
 
         let mut msg = MSG::default();
         while GetMessageW(&mut msg, None, 0, 0).0 > 0 {
@@ -101,10 +106,14 @@ pub fn on_foreground_changed(hwnd: HWND) {
 fn set_hook_enabled(enabled: bool) {
     match (enabled, MOUSE_HOOK.get()) {
         (true, None) => match hooks::install_mouse_hook() {
-            Ok(hook) => MOUSE_HOOK.set(Some(hook)),
+            Ok(hook) => {
+                eprintln!("mouse hook on");
+                MOUSE_HOOK.set(Some(hook));
+            }
             Err(e) => eprintln!("failed to install mouse hook: {e}"),
         },
         (false, Some(hook)) => {
+            eprintln!("mouse hook off");
             hooks::remove_mouse_hook(hook);
             MOUSE_HOOK.set(None);
             TRACKER.with_borrow_mut(Tracker::reset);
@@ -211,6 +220,10 @@ unsafe extern "system" fn control_proc(
             if !running {
                 set_frames_running(false);
             }
+            LRESULT(0)
+        }
+        WM_TIMER if wparam.0 == TIMER_EXCLUSION => {
+            on_foreground_changed(unsafe { GetForegroundWindow() });
             LRESULT(0)
         }
         tray::WM_TRAY => {

@@ -71,6 +71,13 @@ unsafe extern "system" fn foreground_proc(
     _: u32,
     _: u32,
 ) {
+    #[cfg(debug_assertions)]
+    eprintln!(
+        "foreground: {:?} {:?} excluded={}",
+        process_name(hwnd),
+        window_title(hwnd),
+        is_excluded(hwnd)
+    );
     super::app::on_foreground_changed(hwnd);
 }
 
