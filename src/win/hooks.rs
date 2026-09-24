@@ -7,7 +7,7 @@ use windows::Win32::UI::Accessibility::*;
 use windows::Win32::UI::WindowsAndMessaging::*;
 use windows::core::{PWSTR, Result};
 
-use crate::config::{EXCLUDED_PROCESSES, EXCLUDED_TITLE_WORDS};
+use crate::config::EXCLUDED_PROCESSES;
 use crate::tracker::{Event, Point};
 
 pub fn install_mouse_hook() -> Result<HHOOK> {
@@ -82,15 +82,11 @@ unsafe extern "system" fn foreground_proc(
 }
 
 pub fn is_excluded(hwnd: HWND) -> bool {
-    if let Some(name) = process_name(hwnd)
-        && EXCLUDED_PROCESSES
+    process_name(hwnd).is_some_and(|name| {
+        EXCLUDED_PROCESSES
             .iter()
             .any(|e| e.eq_ignore_ascii_case(&name))
-    {
-        return true;
-    }
-    let title = window_title(hwnd).to_lowercase();
-    EXCLUDED_TITLE_WORDS.iter().any(|w| title.contains(&w.to_lowercase()))
+    })
 }
 
 fn process_name(hwnd: HWND) -> Option<String> {
@@ -116,6 +112,7 @@ fn process_name(hwnd: HWND) -> Option<String> {
     }
 }
 
+#[cfg(debug_assertions)]
 fn window_title(hwnd: HWND) -> String {
     let mut buf = [0u16; 256];
     let len = unsafe { GetWindowTextW(hwnd, &mut buf) };

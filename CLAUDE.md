@@ -29,7 +29,7 @@ Real mouse behaviour can't be unit-tested; verify hook/overlay/input changes by 
 
 - `src/direction.rs`, `src/tracker.rs`: **pure logic, no Windows calls**, fully unit-tested. `Tracker::handle(Event) -> Response { swallow, effect }` is the whole gesture state machine (click vs flick vs cancel, when to show/highlight the menu). Change behaviour here first, with tests.
 - `src/anim.rs`: pure, unit-tested visual state of the ring (bubble angle gliding the short way round, bubble glow, open/close fade), eased with time-based exponential smoothing so it's frame-rate independent.
-- `src/config.rs`: hardcoded settings: menu delay, dead zone, excluded process names / window titles, and the direction → label + key chord table.
+- `src/config.rs`: hardcoded settings: menu delay, dead zone, excluded process names, and the direction → label + key chord table.
 - `src/win/`: **all `unsafe` / Win32 code lives here.**
   - `app.rs`: startup (single-instance mutex, per-monitor DPI v2), hidden control window, message loop, and effect execution.
   - `hooks.rs`: `WH_MOUSE_LL` hook and the `EVENT_SYSTEM_FOREGROUND` watcher that installs/removes it based on exclusions.

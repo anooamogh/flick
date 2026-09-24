@@ -20,10 +20,6 @@ pub const EXCLUDED_PROCESSES: &[&str] = &[
     "League of Legends.exe", // the game, not LeagueClient.exe / LeagueClientUx.exe
 ];
 
-/// Also excluded: any foreground window whose title contains one of these (case-insensitive).
-/// Catches the League game and client, and works even if anti-cheat blocks reading the process name.
-pub const EXCLUDED_TITLE_WORDS: &[&str] = &["league"];
-
 pub struct Action {
     pub label: &'static str,
     pub modifier: VIRTUAL_KEY,
