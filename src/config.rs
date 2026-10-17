@@ -18,6 +18,7 @@ pub const DEAD_ZONE_PX: i32 = 30;
 /// Matched case-insensitively against the executable's file name.
 pub const EXCLUDED_PROCESSES: &[&str] = &[
     "League of Legends.exe", // the game, not LeagueClient.exe / LeagueClientUx.exe
+    "EtG.exe",               // Enter the Gungeon
 ];
 
 pub struct Action {
