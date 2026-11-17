@@ -19,6 +19,10 @@ pub const DEAD_ZONE_PX: i32 = 30;
 pub const EXCLUDED_PROCESSES: &[&str] = &[
     "League of Legends.exe", // the game, not LeagueClient.exe / LeagueClientUx.exe
     "EtG.exe",               // Enter the Gungeon
+    "Wow.exe",               // World of Warcraft (retail)
+    "WowClassic.exe",        // World of Warcraft Classic
+    "WowB.exe",              // WoW beta
+    "WowT.exe",              // WoW PTR
 ];
 
 pub struct Action {

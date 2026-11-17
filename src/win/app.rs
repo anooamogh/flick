@@ -100,7 +100,9 @@ pub fn on_mouse_event(event: Event) -> bool {
 }
 
 pub fn on_foreground_changed(hwnd: HWND) {
-    set_hook_enabled(!hooks::is_excluded(hwnd));
+    if let Some(excluded) = hooks::is_excluded(hwnd) {
+        set_hook_enabled(!excluded);
+    }
 }
 
 fn set_hook_enabled(enabled: bool) {

@@ -73,7 +73,7 @@ unsafe extern "system" fn foreground_proc(
 ) {
     #[cfg(debug_assertions)]
     eprintln!(
-        "foreground: {:?} {:?} excluded={}",
+        "foreground: {:?} {:?} excluded={:?}",
         process_name(hwnd),
         window_title(hwnd),
         is_excluded(hwnd)
@@ -81,8 +81,10 @@ unsafe extern "system" fn foreground_proc(
     super::app::on_foreground_changed(hwnd);
 }
 
-pub fn is_excluded(hwnd: HWND) -> bool {
-    process_name(hwnd).is_some_and(|name| {
+/// `None` when the foreground window can't be identified (e.g. mid alt-tab); callers keep their
+/// current state rather than guessing.
+pub fn is_excluded(hwnd: HWND) -> Option<bool> {
+    process_name(hwnd).map(|name| {
         EXCLUDED_PROCESSES
             .iter()
             .any(|e| e.eq_ignore_ascii_case(&name))
